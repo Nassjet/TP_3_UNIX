@@ -162,12 +162,113 @@ awk -F: '$3 > 100 {print $1, $3}' /etc/passwd
 ```
 
 ### exo 6: 
-                                                                                               
+```                                                                                    
 #!/bin/bash
 
-if [ $# -ne 2 ]; then
-        echo "Veuillez saisir 1 login et 1 uid"
+# Vérification que l'utilisateur a passé des arguments
+if [ $# -eq 0 ]; then
+    echo "Saisissez un utilisateur valable (login ou uid)  "
+    exit 1
 fi
 
-login 
+# Fonction pour vérifier par login
+check_by_login() {
+    local login="$1" #déclaration avec le mot clé local pour dire que la variable n'existe que dans la fonction
+    user_info=$(getent passwd "$login") # getent: Récupérer des entrées depuis les bibliothèques NSS, donc on récupére les infos  de l'utilisateur 
+
+    if [ -n "$user_info" ]; then
+        user_uid=$(echo "$user_info" | cut -d: -f3) # Récupère l'UID de l'utilisateur si on a pas trouvé le login
+        echo "Utilisateur trouvé: $login, UID: $user_uid"
+    fi
+}
+
+# Fonction pour vérifier par UID
+check_by_uid() {
+    local uid="$1"
+    user_info=$(getent passwd | awk -F: -v uid="$uid" '$3 == uid {print $0}') # Recherche l'utilisateur par UID
+
+    if [ -n "$user_info" ]; then
+        user_login=$(echo "$user_info" | cut -d: -f1) # Récupère le login de l'utilisateur si on a pas trouvé l'uid
+        echo "Utilisateur trouvé: $user_login, UID: $uid"
+    fi
+}
+
+# Vérifier si l'argument est un nombre (UID) ou un texte (login)
+if [[ "$1" =~ ^[0-9]+$ ]]; then
+    check_by_uid "$1"
+else
+    check_by_login "$1"
+fi
+```
+
+### exo 7: 
+```
+
+#!/bin/bash
+
+# Vérifier si l'utilisateur courant est root
+if [ "$USER" != "root" ]; then
+    echo "Ce script doit être exécuté en tant que root."
+    exit 1
+fi
+
+# Fonction qui vérifie si le user existe déjà avec le login
+check_by_login() {
+    local login="$1"
+    getent passwd "$login" > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "L'utilisateur $login existe déjà."
+        exit 1
+    fi
+}
+
+# Fonction qui vérifie si le user existe déjà avec l'uid
+check_by_uid() {
+    local uid="$1"
+    getent passwd | awk -F: -v uid="$uid" '$3 == uid' > /dev/null 2>&1
+    if [ $? -eq 0 ]; then
+        echo "L'UID $uid est déjà utilisé."
+        exit 1
+    fi
+}
+
+# Fonction principale pour ajouter un utilisateur
+create_user() {
+    # Pose des questions pour configurer le compte utilisateur
+    read -p "Entrez le login de l'utilisateur : " login
+    check_by_login "$login"
+
+    read -p "Entrez le nom de l'utilisateur : " nom
+    read -p "Entrez le prénom de l'utilisateur : " prenom
+    read -p "Entrez l'UID de l'utilisateur : " uid
+    check_by_uid "$uid"
+    
+    read -p "Entrez le GID (Groupe ID) de l'utilisateur : " gid
+    read -p "Entrez des commentaires pour l'utilisateur : " commentaires
+
+    # Vérifier si le répertoire home existe déjà
+    if [ -d "/home/$login" ]; then
+        echo "Le répertoire /home/$login existe déjà."
+        exit 1
+    fi
+
+    # Créer l'utilisateur avec useradd
+    useradd -m -d "/home/$login" -u "$uid" -g "$gid" -c "$commentaires" "$login"
+
+    # Vérifier si la création de l'utilisateur a réussi
+    if [ $? -eq 0 ]; then
+        echo "L'utilisateur $login a été créé avec succès."
+    else
+        echo "Une erreur est survenue lors de la création de l'utilisateur."
+        exit 1
+    fi
+}
+
+# Appel de la fonction principale
+create_user
+```
+### exo 8: 
+```
+
+
 
