@@ -9,7 +9,9 @@ Pour l'exercice on cherche il faut afficher les paramètres qu'on aura écrit en
 La première ligne s'appelle le "shebang" c'est important pour executer n'importe quelle script, ici du bash. 
 Aussi, on a déclaré une variable vide `param = $#` pour stocker les arguments passés au script (cf le cours du tp3). 
 
-exo 1: 
+### exo 1: 
+
+```
 #!/bin/bash
 # déclaration d'une variable qui prend en paramètres les arguments passer lors de l éxecution 
 parametres=$#
@@ -26,8 +28,10 @@ printf "Bonjour, vous avez rentré %d paramètre(s).\n" "$nombre_parametres"
 printf "Le nom du script est  $nom_du_script"
 printf "Le 3ème paramètre est $troisieme_parametre"
 printf "Voici la liste des paramètres : %s\n" "$liste_parametres"
+```
+### exo 2: 
 
-exo 2: 
+```
 # Vérifie si le nombre de paramètres passés au script est différent de 2
 if [ "$#" -ne 2 ]; then
     # Sinon , affiche un message d'erreur
@@ -42,10 +46,10 @@ CONCAT="$1$2"
 
 # Affiche le résultat de la concaténation
 echo "La concaténation des deux mots est : $CONCAT"
+```
+### exo 3:
 
-exo 3:
-
-
+```
 #!/bin/bash
 
 # Vérifie si le fichier a été passé en paramètre
@@ -104,14 +108,14 @@ if [ -x "$FICHIER" ]; then
 fi
 
 echo ""
+```
 
 
 
 
 
-
-exo 4: 
-  GNU nano 7.2                                                                                        listedir.sh                                                                                                  
+### exo 4: 
+```
 #!/bin/bash
 
 # Vérifie si un répertoire a été passé en paramètre
@@ -130,10 +134,11 @@ ls -p "$1" | grep -v /
 echo "####### répertoires dans $1/"
 #" ici ça n'affiche que les fichiers et répertoires n'ayant que / à la fin "
 ls -p "$1" | grep /
+```
 
+### exo 5: 
 
-exo 5: 
-  GNU nano 7.2                                                                                      utilisateurs.sh                                                                                                
+```
 #!/bin/bash
 
 # Utilisation de cut pour extraire le nom d'utilisateur et l'UID
@@ -154,11 +159,10 @@ done
 
 # Utilisation d'awk pour afficher les utilisateurs avec un UID supérieur à 100
 awk -F: '$3 > 100 {print $1, $3}' /etc/passwd
+```
 
-
-exo 6: 
-
-  GNU nano 7.2                                                                                        userExist.sh                                                                                                 
+### exo 6: 
+                                                                                               
 #!/bin/bash
 
 if [ $# -ne 2 ]; then
